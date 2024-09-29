@@ -1,34 +1,16 @@
 ########################## STACK INFO ##########################
-## CALLER FILE    : main.cpp
-## CALLER FUNCTION: main
-## LINE          = 14
-## STACK ERRORS  = 0
-## STACK SIZE    = 9
-## STACK CAPACIY = 16
-## STACK DATA:
-[1611.000000], [1611.000000], [1611.000000], [1611.000000], [1611.000000], 
-[1611.000000], [1611.000000], [1611.000000], [1611.000000], 
-
-
-########################## STACK INFO ##########################
-## CALLER FILE    : main.cpp
-## CALLER FUNCTION: main
-## LINE          = 20
-## STACK ERRORS  = 0
-## STACK SIZE    = 2
+## CALLER STACK: 0x7ffcc0e81390
+## CALLER FILE    : Stack.cpp
+## CALLER FUNCTION: StackPush
+## LINE          = 58
+## STACK ERRORS  = 512
+## STACK SIZE    = 8
 ## STACK CAPACIY = 8
-## STACK DATA:
-[1611.000000], [1611.000000], 
+## STACK DATA: 0x597942a6e2a0
+[1611], [1611], [1611], [1611], [1611],  (5)
+[1611], [1611], [1611], 
 
 
-########################## STACK INFO ##########################
-## CALLER FILE    : main.cpp
-## CALLER FUNCTION: main
-## LINE          = 22
-## STACK ERRORS  = 0
-## STACK SIZE    = 1
-## STACK CAPACIY = 4
-## STACK DATA:
-[1611.000000], 
+## STACK ERRORS: 000000005120000000000000000000000000000000000000000000000000000000
 
 

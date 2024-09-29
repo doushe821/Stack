@@ -1,20 +1,30 @@
 #include "stack.h"
+#include "StackDB.h"
 
-int doStackInit(Stack_t* stk, size_t InitCapacity)
+int StackInit(Stack_t* stk, size_t InitCapacity)
 {
-    if((stk->data = (double*)calloc(InitCapacity, sizeof(double))) == NULL)
+
+    if(stk == NULL)
+    {
+        return STACK_PTR_IS_NULL;
+    }
+
+    if((stk->data = (double*)calloc(InitCapacity + 3, sizeof(double))) == NULL)
     {
         fprintf(stderr, "Dynamic Memory dead\n");
         stk->Error = ALLOC_ERROR;
         return ALLOC_ERROR; 
     }
+
     stk->size = 0;
     stk->capacity = InitCapacity;
+    
     return NO_ERRORS;
 }
                    
-int doStackDtor(Stack_t* stk)
+int StackDtor(Stack_t* stk)
 {
+    STACK_ASSERT(stk);
     void* ptr = memset(stk->data, 0, sizeof(StackElem_t)*stk->capacity);
 
     if(ptr == NULL)
@@ -29,11 +39,12 @@ int doStackDtor(Stack_t* stk)
     return NO_ERRORS; 
 }
 
-int doStackPush(Stack_t* stk, StackElem_t elem)
+int StackPush(Stack_t* stk, StackElem_t elem)
 {
+    STACK_ASSERT(stk);
     if(stk->size >= stk->capacity)
     {
-        if(doStackResize(stk, false) != 0)
+        if(StackResize(stk, false) != 0)
         {
             stk->Error = ALLOC_ERROR;
             free(stk->data);
@@ -44,20 +55,24 @@ int doStackPush(Stack_t* stk, StackElem_t elem)
     stk->data[stk->size] = elem;
     stk->size++;
 
+    STACK_ASSERT(stk);
+
     return NO_ERRORS;
 }
 
 
-int doStackPop(Stack_t* stk, StackElem_t* elem)
+int StackPop(Stack_t* stk, StackElem_t* elem)
 {
+    STACK_ASSERT(stk);
+
     if(stk->size <= 0)
     {
-        return NO_MORE_ELEMENTS;
+        return STACK_UNDERFLOW;
     }
     if(stk->size <= stk->capacity/4)
     {
         
-        if(doStackResize(stk, true) != 0)
+        if(StackResize(stk, true) != 0)
         {
             stk->Error = ALLOC_ERROR;
             free(stk->data);
@@ -66,14 +81,17 @@ int doStackPop(Stack_t* stk, StackElem_t* elem)
     }
     
     *elem = stk->data[stk->size];
-    stk->data[stk->size] = 0;
+    stk->data[stk->size] = NAN;
     stk->size--;
 
+    STACK_ASSERT(stk);
     return NO_ERRORS;
 }
 
-int doStackResize(Stack_t* stk, bool downSizeFlag)
+int StackResize(Stack_t* stk, bool downSizeFlag)
 {
+    STACK_ASSERT(stk);
+
     if(downSizeFlag)
     {
         if((stk->data = (StackElem_t*)wrecalloc(stk->data, stk->capacity/REALLOC_COEF, sizeof(StackElem_t))) == 0)
@@ -102,6 +120,7 @@ int doStackResize(Stack_t* stk, bool downSizeFlag)
 
         return NO_ERRORS;
     } 
+    STACK_ASSERT(stk);
     return NO_ERRORS;
 }
 
@@ -119,42 +138,6 @@ void* wrecalloc(void* ptr, size_t num, size_t size)
     free(ptr);
     return tptr;
 } 
-                                                           
-int doStackDump(Stack_t* stk, const char* file, const char* func, int line)
-{
-    FILE* log = fopen("log.txt", "a+b");
-    if(log == NULL)
-    {
-        stk->Error = FILE_CREATION_ERROR;
-        fclose(log);
-        return FILE_CREATION_ERROR;
-    }
-
-    fprintf(log, 
-    "########################## STACK INFO ##########################\n"
-    "## CALLER FILE    : %s\n"
-    "## CALLER FUNCTION: %s\n"
-    "## LINE          = %d\n"
-    "## STACK ERRORS  = %d\n"
-    "## STACK SIZE    = %zu\n"
-    "## STACK CAPACIY = %zu\n"
-    "## STACK DATA:\n"
-    , file, func, line, stk->Error, stk->size, stk->capacity);
-
-    for(int i = 0; i < stk->size; i++)
-    {
-        fprintf(log, "[%lf], ", stk->data[i]);
-        if((i + 1) % 5 == 0)
-        {
-            fprintf(log, "\n");
-        }
-    }
-    fprintf(log, "\n\n\n");
-
-    fclose(log);
-
-    return NO_ERRORS;
-}
 
 void errParse(int e)
 {
@@ -184,7 +167,7 @@ void errParse(int e)
             break;
         }
 
-        case NO_MORE_ELEMENTS:
+        case STACK_UNDERFLOW:
         {
             fprintf(stderr, "You tried to grab an element from an empty stack.");
             break;
