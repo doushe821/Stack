@@ -53,9 +53,8 @@ int StackDtor(Stack_t* stk)
 
 int StackPush(Stack_t* stk, void* elem)
 {
-    $;
     STACK_ASSERT(stk); 
-    $;
+
     if(stk->size >= stk->capacity)
     {
         if(StackResize(stk, false) != 0)
@@ -179,7 +178,8 @@ void* wrecalloc(void* ptr, size_t num, size_t size, size_t PrevSize) //POISON
         free(tptr);
         return NULL;
     }
-    //memset(ON_DEBUG((char*))tptr ON_DEBUG( + 1*size) , POISON, (num - 1 ON_DEBUG( - 1))*size);
+    
+    memset(ON_DEBUG((char*))tptr ON_DEBUG( + 1*size) , POISON, (num - 1 ON_DEBUG( - 1))*size);
     memcpy((char*)tptr, ptr, (PrevSize ON_DEBUG(+ 1))*size);
     
     free(ptr);

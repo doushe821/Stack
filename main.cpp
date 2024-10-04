@@ -15,32 +15,21 @@ int main()
 
     stk.elSize = 4;
 
-    STACK_INIT(&stk, 8);
+    STACK_INIT(&stk, 12800);
 
     //StackDump(&stk);
     int y = 3333; 
 
     StackPush(&stk, &y);
   
-    VoidIntDump(&stk); 
+    //*(int*)((char*)stk.data + 1*stk.elSize) = 69;
     
-    StackPush(&stk, &y); StackPush(&stk, &y); *(int*)((char*)stk.data + 1*stk.elSize) = 69;  StackPush(&stk, &y); StackPush(&stk, &y); StackPush(&stk, &y); StackPush(&stk, &y); StackPush(&stk, &y); StackPush(&stk, &y); StackPush(&stk, &y); StackPush(&stk, &y); StackPush(&stk, &y);
-    VoidIntDump(&stk);
-    //StackPop(&stk, &y);
+    //StackPop(&stk, &y);tackPush(&stk, &y); StackPush(&stk, &y);   StackPush(&stk, &y); StackPush(&stk, &y); StackPush(&stk, &y); StackPush(&stk, &y); StackPush(&stk, &y); StackPush(&stk, &y); StackPush(&stk, &y); StackPush(&stk, &y); StackPush(&stk, &y);
     //fprintf(stderr, "%d\n", *((int*)((char*)stk.data)));
-
-
-    int x = 9;
-    int* xptr = &x;
-    
-      StackPop(&stk, &x);  StackPop(&stk, &x);  StackPop(&stk, &x);  StackPop(&stk, &x);  StackPop(&stk, &x);  StackPop(&stk, &x);  StackPop(&stk, &x);  StackPop(&stk, &x);  StackPop(&stk, &x);  StackPop(&stk, &x);  StackPop(&stk, &x);  StackPop(&stk, &x);
-    
-    //VoidIntDump(&stk);    
-    /*void* killerptr = ((char*)stk.data - 5*stk.elSize);
-    for(int i = 0; i < 11; i++)
+    for(size_t i = 0; i < 100; i++)
     {
-        *(int*)((char*)killerptr + i*stk.elSize) = 7;
-    }    */ //TORTURE ROOM
+      StackPush(&stk, &y);
+    }
 
     VoidIntDump(&stk);
 
