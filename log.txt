@@ -1,16 +1,52 @@
 ########################## STACK INFO ##########################
-## CALLER STACK: 0x7ffcc0e81390
-## CALLER FILE    : Stack.cpp
-## CALLER FUNCTION: StackPush
-## LINE          = 58
-## STACK ERRORS  = 512
-## STACK SIZE    = 8
+##CALLER STACK NAME: &stk
+## CALLER STACK POINTER: 0x7ffd56f67190
+## CALLER FILE    : 
+## CALLER FUNCTION: 
+## LINE          = 0
+## STACK SIZE    = 1
 ## STACK CAPACIY = 8
-## STACK DATA: 0x597942a6e2a0
-[1611], [1611], [1611], [1611], [1611],  (5)
-[1611], [1611], [1611], 
+## STACK DATA: 0x64fd98e85480
+## DATA BUFFER: 
+### BOTTOM CANARY: 78
+# [3333]  (1)
+# [0]  (2)
+# [0]  (3)
+# [0]  (4)
+# [0]  (5)
+# [0]  (6)
+# [0]  (7)
+# [0]  (8)
+### TOP CANARY: 78
+## HASH SUM: 8244675323720497827
+## ERRORS: 0000000000000000
+################################################################
 
 
-## STACK ERRORS: 000000005120000000000000000000000000000000000000000000000000000000
+
+########################## STACK INFO ##########################
+##CALLER STACK NAME: &stk
+## CALLER STACK POINTER: 0x7ffd56f67190
+## CALLER FILE    : 
+## CALLER FUNCTION: 
+## LINE          = 0
+## STACK SIZE    = 3
+## STACK CAPACIY = 8
+## STACK DATA: 0x64fd98e85480
+## DATA BUFFER: 
+### BOTTOM CANARY: 78
+# [69]  (1)
+# [3333]  (2)
+# [3333]  (3)
+# [0]  (4)
+# [0]  (5)
+# [0]  (6)
+# [0]  (7)
+# [0]  (8)
+### TOP CANARY: 78
+## HASH SUM: 8244675323720497931
+## ERRORS: 0000000000000100
+################################################################
+
 
 

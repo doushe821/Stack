@@ -1,6 +1,10 @@
 #include "stack.h"
 #include "StackDB.h"
 
+
+static int POISON = -666;
+static int* POISON_PTR = &POISON; 
+
 int StackInit(Stack_t* stk, size_t InitCapacity)
 {
 
@@ -9,27 +13,35 @@ int StackInit(Stack_t* stk, size_t InitCapacity)
         return STACK_PTR_IS_NULL;
     }
 
-    if((stk->data = (double*)calloc(InitCapacity + 3, sizeof(double))) == NULL)
+    if((stk->data = calloc(InitCapacity ON_DEBUG( + 2), stk->elSize)) == NULL)
     {
         fprintf(stderr, "Dynamic Memory dead\n");
-        stk->Error = ALLOC_ERROR;
+        stk->Error += ALLOC_ERROR;
         return ALLOC_ERROR; 
     }
 
     stk->size = 0;
     stk->capacity = InitCapacity;
-    
+
+    #ifndef NDEBUG
+    stk->SructCanaryGuardTop = StructCanaryGuardTopREF;
+    stk->StructCanaryGuardBot = StructCanaryGuardBotREF;
+    *(int*)stk->data = DataCanaryGuardBotREF;
+    *(int*)((char*)stk->data + (stk->capacity + 1)*stk->elSize) = DataCanaryGuardTopREF;
+    stk->HashSum = hash(stk->data, stk->capacity + 2);
+    #endif
+
     return NO_ERRORS;
 }
                    
 int StackDtor(Stack_t* stk)
 {
     STACK_ASSERT(stk);
-    void* ptr = memset(stk->data, 0, sizeof(StackElem_t)*stk->capacity);
+    void* ptr = memset(stk->data, 0, stk->elSize*stk->capacity);
 
     if(ptr == NULL)
     {
-        stk->Error = MEMSET_FAILURE;
+        stk->Error += MEMSET_FAILURE;
         free(stk->data);
         return MEMSET_FAILURE;
     }
@@ -39,78 +51,100 @@ int StackDtor(Stack_t* stk)
     return NO_ERRORS; 
 }
 
-int StackPush(Stack_t* stk, StackElem_t elem)
+int StackPush(Stack_t* stk, void* elem)
 {
-    STACK_ASSERT(stk);
+    $;
+    STACK_ASSERT(stk); 
+    $;
     if(stk->size >= stk->capacity)
     {
         if(StackResize(stk, false) != 0)
         {
-            stk->Error = ALLOC_ERROR;
+            stk->Error += ALLOC_ERROR;
             free(stk->data);
             return ALLOC_ERROR;
         }
     }
     
-    stk->data[stk->size] = elem;
+    cpybytes((char*)stk->data + (stk->size ON_DEBUG( + 1))*stk->elSize, elem, stk->elSize);
     stk->size++;
-
+    
+    #ifndef NDEBUG
+    stk->HashSum = hash(stk->data, stk->capacity + 2);
+    #endif
     STACK_ASSERT(stk);
 
     return NO_ERRORS;
 }
 
 
-int StackPop(Stack_t* stk, StackElem_t* elem)
+int StackPop(Stack_t* stk, void* elem)
 {
+    
     STACK_ASSERT(stk);
 
     if(stk->size <= 0)
     {
-        return STACK_UNDERFLOW;
+        stk->Error = STACK_UNDERFLOW;
     }
+    
     if(stk->size <= stk->capacity/4)
     {
         
         if(StackResize(stk, true) != 0)
         {
-            stk->Error = ALLOC_ERROR;
+            stk->Error += ALLOC_ERROR;
             free(stk->data);
             return ALLOC_ERROR;
         }
+        
     }
+
+    cpybytes(elem, (char*)stk->data + stk->size*stk->elSize, stk->elSize);
     
-    *elem = stk->data[stk->size];
-    stk->data[stk->size] = NAN;
+    cpybytes((char*)stk->data + stk->size*stk->elSize, POISON_PTR, stk->elSize);
+    
     stk->size--;
 
+
+    #ifndef NDEBUG
+    stk->HashSum = hash(stk->data, stk->capacity + 2);
+    #endif
     STACK_ASSERT(stk);
+    
     return NO_ERRORS;
 }
 
 int StackResize(Stack_t* stk, bool downSizeFlag)
 {
+
     STACK_ASSERT(stk);
 
     if(downSizeFlag)
     {
-        if((stk->data = (StackElem_t*)wrecalloc(stk->data, stk->capacity/REALLOC_COEF, sizeof(StackElem_t))) == 0)
+        if((stk->data = wrecalloc(stk->data, stk->capacity/REALLOC_COEF ON_DEBUG( + 2), stk->elSize, stk->size)) == 0)
         {
-            stk->Error = ALLOC_ERROR;
+            stk->Error += ALLOC_ERROR;
             free(stk->data);
             
             return ALLOC_ERROR;
         }
+
         stk->capacity /= REALLOC_COEF;
+
+        #ifndef NDEBUG
+        *(int*)((char*)stk->data + (stk->capacity + 1)*stk->elSize) = DataCanaryGuardTopREF;     
+        stk->HashSum = hash(stk->data, stk->capacity + 2);
+        #endif
 
         return NO_ERRORS;
     }
 
     else
     {
-        if((stk->data = (StackElem_t*)wrecalloc(stk->data, stk->capacity*REALLOC_COEF, sizeof(StackElem_t)))== 0)
+        if((stk->data = wrecalloc(stk->data, stk->capacity*REALLOC_COEF ON_DEBUG( + 2), stk->elSize, stk->size))== 0)
         {
-            stk->Error = ALLOC_ERROR;
+            stk->Error += ALLOC_ERROR;
             free(stk->data);
             
             return ALLOC_ERROR;
@@ -118,14 +152,26 @@ int StackResize(Stack_t* stk, bool downSizeFlag)
 
         stk->capacity *= REALLOC_COEF;
 
+        #ifndef NDEBUG
+        stk->HashSum = hash(stk->data, stk->capacity + 2);
+        *(int*)((char*)stk->data + (stk->capacity + 1)*stk->elSize) = DataCanaryGuardTopREF;
+        #endif
+
         return NO_ERRORS;
     } 
+
+    #ifndef NDEBUG
+    stk->HashSum = hash(stk->data, stk->capacity + 2);
+    #endif
+
+
     STACK_ASSERT(stk);
     return NO_ERRORS;
 }
 
-void* wrecalloc(void* ptr, size_t num, size_t size)
+void* wrecalloc(void* ptr, size_t num, size_t size, size_t PrevSize) //POISON
 {
+    
     void* tptr = calloc(num, size);
     if(tptr == NULL)
     {
@@ -133,9 +179,13 @@ void* wrecalloc(void* ptr, size_t num, size_t size)
         free(tptr);
         return NULL;
     }
-
-    memcpy(tptr, ptr, num*size);
+    //memset(ON_DEBUG((char*))tptr ON_DEBUG( + 1*size) , POISON, (num - 1 ON_DEBUG( - 1))*size);
+    memcpy((char*)tptr, ptr, (PrevSize ON_DEBUG(+ 1))*size);
+    
     free(ptr);
+    
+    //tptr = memset((char*)tptr + PrevSize*size, 1, size*num - PrevSize*size);
+    
     return tptr;
 } 
 
